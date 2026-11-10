@@ -1,18 +1,19 @@
-// Every call to the FastAPI backend goes through this one axios instance.
+// every call to the backend goes through this one axios instance
 import axios from "axios";
 
 const api = axios.create({
   baseURL: import.meta.env.VITE_API_URL || "http://localhost:8000/api/v1",
 });
 
-// Attach the JWT saved at login to every request.
+// I read the JWT saved at login and send it as a bearer token on every request
 api.interceptors.request.use((config) => {
   const token = localStorage.getItem("lirs_token");
   if (token) config.headers.Authorization = `Bearer ${token}`;
   return config;
 });
 
-// If the token expired, clear it and send the user back to login.
+// a 401 means the token expired or is bad, so I clear it and go back to login
+// except on the login call itself, otherwise a wrong password would reload the page
 api.interceptors.response.use(
   (res) => res,
   (err) => {

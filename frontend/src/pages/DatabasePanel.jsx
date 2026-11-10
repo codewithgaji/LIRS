@@ -3,14 +3,14 @@ import { adminApi, errorMessage } from "../services/api.js";
 import { PageHeader } from "../components/StatusBadge.jsx";
 import { downloadCsv } from "../utils/constants.js";
 
-// Ready-made analytics queries (MySQL syntax) to practise with.
+// sample queries to practise with, written in postgres syntax
 const SAMPLES = [
   { label: "Letters per status", sql: "SELECT status, COUNT(*) AS total FROM correspondence GROUP BY status ORDER BY total DESC" },
   { label: "Busiest account officers", sql: "SELECT u.full_name, COUNT(c.id) AS letters FROM users u LEFT JOIN correspondence c ON c.account_officer_id = u.id WHERE u.role = 'account_officer' GROUP BY u.full_name ORDER BY letters DESC" },
   { label: "Letters by department", sql: "SELECT d.name, COUNT(c.id) AS letters FROM departments d LEFT JOIN correspondence c ON c.department_id = d.id GROUP BY d.name" },
-  { label: "Monthly volume", sql: "SELECT DATE_FORMAT(date_received, '%Y-%m') AS month, COUNT(*) AS letters FROM correspondence GROUP BY month ORDER BY month" },
+  { label: "Monthly volume", sql: "SELECT to_char(date_received, 'YYYY-MM') AS month, COUNT(*) AS letters FROM correspondence GROUP BY month ORDER BY month" },
   { label: "Urgent open letters", sql: "SELECT reference_number, letter_title, status FROM correspondence WHERE priority = 'urgent' AND status <> 'closed'" },
-  { label: "Average days to close", sql: "SELECT ROUND(AVG(DATEDIFF(h.changed_at, c.date_received)), 1) AS avg_days FROM correspondence c JOIN correspondence_status_history h ON h.correspondence_id = c.id WHERE h.new_status = 'closed'" },
+  { label: "Average days to close", sql: "SELECT ROUND(AVG(CAST(h.changed_at AS date) - c.date_received), 1) AS avg_days FROM correspondence c JOIN correspondence_status_history h ON h.correspondence_id = c.id WHERE h.new_status = 'closed'" },
   { label: "Full report view", sql: "SELECT * FROM v_correspondence_full ORDER BY date_received DESC" },
 ];
 
@@ -25,7 +25,7 @@ export default function DatabasePanel() {
     adminApi.schema().then((cols) => {
       const grouped = {};
       cols.forEach((c) => {
-        const table = c.table_name || c.TABLE_NAME;
+        const table = c.table_name;
         (grouped[table] ||= []).push(c);
       });
       setSchema(grouped);
@@ -49,14 +49,14 @@ export default function DatabasePanel() {
 
   return (
     <>
-      <PageHeader title="Database panel" subtitle="Read-only SQL console — SELECT queries only, max 200 rows" />
+      <PageHeader title="Database panel" subtitle="Read-only SQL console, SELECT queries only, max 200 rows" />
       <div className="db-layout">
         <div className="card schema">
           <h3>Schema</h3>
           {Object.entries(schema).map(([table, cols]) => (
             <details key={table}>
               <summary>{table}</summary>
-              <ul>{cols.map((c) => <li key={c.column_name || c.COLUMN_NAME}>{c.column_name || c.COLUMN_NAME} <span className="muted">{c.data_type || c.DATA_TYPE}</span></li>)}</ul>
+              <ul>{cols.map((c) => <li key={c.column_name}>{c.column_name} <span className="muted">{c.data_type}</span></li>)}</ul>
             </details>
           ))}
         </div>

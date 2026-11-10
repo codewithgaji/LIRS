@@ -7,9 +7,8 @@ from db.session import Base
 from models.enums import CorrDirection, CorrPriority, CorrStatus
 
 
+# one row per letter in the register, incoming or outgoing
 class Correspondence(Base):
-    """One letter in the register, incoming or outgoing."""
-
     __tablename__ = "correspondence"
     __table_args__ = (
         Index("ix_correspondence_status", "status"),
@@ -19,6 +18,7 @@ class Correspondence(Base):
 
     id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
     reference_number: Mapped[str] = mapped_column(String(40), nullable=False, unique=True)
+    # same idea as the role column, native_enum=False so these stay plain varchars
     direction: Mapped[CorrDirection] = mapped_column(
         Enum(CorrDirection, native_enum=False, length=16), nullable=False
     )
@@ -33,6 +33,7 @@ class Correspondence(Base):
         Enum(CorrStatus, native_enum=False, length=20), nullable=False, default=CorrStatus.pending
     )
 
+    # three different staff members can be attached to one letter, all three point at users.id
     admin_officer_id: Mapped[int | None] = mapped_column(
         ForeignKey("users.id", ondelete="SET NULL"), nullable=True
     )
@@ -53,6 +54,7 @@ class Correspondence(Base):
     )
 
     department = relationship("Department", back_populates="correspondence")
+    # newest history entry first, and deleting a letter deletes its history too
     history = relationship(
         "CorrespondenceStatusHistory",
         back_populates="correspondence",
@@ -61,15 +63,15 @@ class Correspondence(Base):
     )
 
 
+# audit trail, a new row every time a letter changes status, I never update or delete these
 class CorrespondenceStatusHistory(Base):
-    """Append-only audit trail of every status change."""
-
     __tablename__ = "correspondence_status_history"
 
     id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
     correspondence_id: Mapped[int] = mapped_column(
         ForeignKey("correspondence.id", ondelete="CASCADE"), nullable=False, index=True
     )
+    # old_status is empty on the very first row (the registration itself)
     old_status: Mapped[CorrStatus | None] = mapped_column(
         Enum(CorrStatus, native_enum=False, length=20), nullable=True
     )

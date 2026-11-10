@@ -1,4 +1,4 @@
-"""Aggregated figures behind the Dashboard, Analytics and Reports screens."""
+# numbers behind the dashboard and reports pages
 
 from fastapi import APIRouter, Depends
 from sqlalchemy import func, select
@@ -15,6 +15,7 @@ router = APIRouter(prefix="/reports", tags=["Reports & analytics"])
 def summary(db: Session = Depends(get_db), _: User = Depends(get_current_user)) -> dict:
     total = db.scalar(select(func.count()).select_from(Correspondence)) or 0
 
+    # small helper so each card is one line below
     def count_where(condition) -> int:
         return db.scalar(select(func.count()).select_from(Correspondence).where(condition)) or 0
 
@@ -37,6 +38,7 @@ def by_status(db: Session = Depends(get_db), _: User = Depends(get_current_user)
 
 @router.get("/by-department")
 def by_department(db: Session = Depends(get_db), _: User = Depends(require_manager)) -> list[dict]:
+    # outer join so departments with zero letters still show up with 0
     rows = db.execute(
         select(Department.name, func.count(Correspondence.id))
         .join(Correspondence, Correspondence.department_id == Department.id, isouter=True)
@@ -59,7 +61,8 @@ def by_officer(db: Session = Depends(get_db), _: User = Depends(require_manager)
 
 @router.get("/monthly")
 def monthly(db: Session = Depends(get_db), _: User = Depends(get_current_user)) -> list[dict]:
-    period = func.date_format(Correspondence.date_received, "%Y-%m")
+    # to_char is the postgres way to get "2026-03", it replaced mysql date_format
+    period = func.to_char(Correspondence.date_received, "YYYY-MM")
     rows = db.execute(
         select(period, func.count()).group_by(period).order_by(period)
     ).all()

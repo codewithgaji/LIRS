@@ -80,9 +80,9 @@ export default function LetterDetail() {
           <label>Company<input value={form.company_name || ""} onChange={set("company_name")} disabled={isOfficer} /></label>
           <label>Phone<input value={form.contact_phone || ""} onChange={set("contact_phone")} disabled={isOfficer} /></label>
           <label>Priority<select value={form.priority} onChange={set("priority")} disabled={isOfficer}>{PRIORITIES.map((p) => <option key={p}>{p}</option>)}</select></label>
-          <label>Department<select value={form.department_id || ""} onChange={set("department_id")} disabled={isOfficer}><option value="">—</option>{departments.map((d) => <option key={d.id} value={d.id}>{d.name}</option>)}</select></label>
-          <label>Station manager<select value={form.station_manager_id || ""} onChange={set("station_manager_id")} disabled={isOfficer}><option value="">—</option>{staff.filter((s) => s.role === "station_manager").map((s) => <option key={s.id} value={s.id}>{s.full_name}</option>)}</select></label>
-          <label>Account officer<select value={form.account_officer_id || ""} onChange={set("account_officer_id")} disabled={isOfficer}><option value="">—</option>{staff.filter((s) => s.role === "account_officer").map((s) => <option key={s.id} value={s.id}>{s.full_name}</option>)}</select></label>
+          <label>Department<select value={form.department_id || ""} onChange={set("department_id")} disabled={isOfficer}><option value="">-</option>{departments.map((d) => <option key={d.id} value={d.id}>{d.name}</option>)}</select></label>
+          <label>Station manager<select value={form.station_manager_id || ""} onChange={set("station_manager_id")} disabled={isOfficer}><option value="">-</option>{staff.filter((s) => s.role === "station_manager").map((s) => <option key={s.id} value={s.id}>{s.full_name}</option>)}</select></label>
+          <label>Account officer<select value={form.account_officer_id || ""} onChange={set("account_officer_id")} disabled={isOfficer}><option value="">-</option>{staff.filter((s) => s.role === "account_officer").map((s) => <option key={s.id} value={s.id}>{s.full_name}</option>)}</select></label>
           <label className="wide">Remarks<textarea rows={3} value={form.remarks || ""} onChange={set("remarks")} /></label>
           <p className="muted small wide">Direction: {letter.direction} · Received {formatDate(letter.date_received)}</p>
           <div className="wide"><button className="btn btn-primary">Save changes</button></div>

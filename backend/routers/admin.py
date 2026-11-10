@@ -1,4 +1,4 @@
-"""Admin-only database console: schema browser and read-only SQL practice."""
+# admin only: schema browser and the read-only sql console for the database panel
 
 import re
 
@@ -14,6 +14,8 @@ from models import User
 
 router = APIRouter(prefix="/admin", tags=["Database administration"])
 
+# crude blocklist for anything that could change data, fine for a practice console
+# but not real security, the query also has to start with select and have no semicolon
 FORBIDDEN = re.compile(
     r"\b(insert|update|delete|drop|alter|create|truncate|grant|revoke|replace|call|set)\b",
     re.IGNORECASE,
@@ -31,7 +33,7 @@ def list_schema(db: Session = Depends(get_db), _: User = Depends(require_admin))
             """
             SELECT table_name, column_name, data_type, is_nullable
             FROM information_schema.columns
-            WHERE table_schema = DATABASE()
+            WHERE table_schema = current_schema()
             ORDER BY table_name, ordinal_position
             """
         )
@@ -49,6 +51,7 @@ def run_readonly_query(
     if FORBIDDEN.search(sql) or ";" in sql:
         raise HTTPException(status.HTTP_400_BAD_REQUEST, "This query contains a forbidden keyword")
 
+    # wrapping the query in a subselect lets me force the 200 row limit
     try:
         rows = db.execute(text(f"SELECT * FROM ({sql}) AS practice LIMIT 200")).mappings()
         return {"rows": [dict(row) for row in rows], "error": None}

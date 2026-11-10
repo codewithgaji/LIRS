@@ -7,7 +7,8 @@ export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  // On page load, restore the session from the saved token.
+  // on page load I use the saved token to ask /auth/me who is logged in,
+  // if it fails the token is dead so I remove it
   useEffect(() => {
     if (!localStorage.getItem("lirs_token")) return setLoading(false);
     authApi.me().then(setUser).catch(() => localStorage.removeItem("lirs_token")).finally(() => setLoading(false));

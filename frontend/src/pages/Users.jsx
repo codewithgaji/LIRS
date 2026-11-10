@@ -36,7 +36,7 @@ export default function Users() {
         <label>Email<input type="email" value={form.email} onChange={set("email")} required /></label>
         <label>Temporary password<input type="password" minLength={8} value={form.password} onChange={set("password")} required /></label>
         <label>Role<select value={form.role} onChange={set("role")}>{Object.entries(ROLE_LABELS).map(([v, l]) => <option key={v} value={v}>{l}</option>)}</select></label>
-        <label>Department<select value={form.department_id} onChange={set("department_id")}><option value="">—</option>{departments.map((d) => <option key={d.id} value={d.id}>{d.name}</option>)}</select></label>
+        <label>Department<select value={form.department_id} onChange={set("department_id")}><option value="">-</option>{departments.map((d) => <option key={d.id} value={d.id}>{d.name}</option>)}</select></label>
         <label>Station<input value={form.station} onChange={set("station")} /></label>
         {error && <div className="alert wide">{error}</div>}
         <div className="wide"><button className="btn btn-primary">Create account</button></div>
@@ -49,7 +49,7 @@ export default function Users() {
               <tr key={u.id}>
                 <td>{u.full_name}</td>
                 <td>{u.email}</td>
-                <td>{deptName[u.department_id] || "—"}</td>
+                <td>{deptName[u.department_id] || "-"}</td>
                 <td>
                   <select value={u.role} onChange={(e) => usersApi.setRole(u.id, e.target.value).then(load)}>
                     {Object.entries(ROLE_LABELS).map(([v, l]) => <option key={v} value={v}>{l}</option>)}

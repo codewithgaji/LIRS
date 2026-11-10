@@ -30,7 +30,7 @@ export default function RegisterLetter() {
   const submit = async (e) => {
     e.preventDefault();
     setError("");
-    // Empty strings become null so Pydantic accepts optional fields.
+    // empty strings become null, otherwise pydantic rejects the optional number fields
     const payload = Object.fromEntries(Object.entries(form).map(([k, v]) => [k, v === "" ? null : v]));
     try {
       const letter = await correspondenceApi.create(payload);
@@ -52,9 +52,9 @@ export default function RegisterLetter() {
         <label>Company name<input value={form.company_name} onChange={set("company_name")} minLength={2} required /></label>
         <label>Contact phone<input value={form.contact_phone} onChange={set("contact_phone")} /></label>
         <label>Priority<select value={form.priority} onChange={set("priority")}>{PRIORITIES.map((p) => <option key={p}>{p}</option>)}</select></label>
-        <label>Department<select value={form.department_id} onChange={set("department_id")}><option value="">—</option>{departments.map((d) => <option key={d.id} value={d.id}>{d.name}</option>)}</select></label>
-        <label>Station manager<select value={form.station_manager_id} onChange={set("station_manager_id")}><option value="">—</option>{byRole("station_manager").map((s) => <option key={s.id} value={s.id}>{s.full_name}</option>)}</select></label>
-        <label>Account officer<select value={form.account_officer_id} onChange={set("account_officer_id")}><option value="">— (stays pending)</option>{byRole("account_officer").map((s) => <option key={s.id} value={s.id}>{s.full_name}</option>)}</select></label>
+        <label>Department<select value={form.department_id} onChange={set("department_id")}><option value="">-</option>{departments.map((d) => <option key={d.id} value={d.id}>{d.name}</option>)}</select></label>
+        <label>Station manager<select value={form.station_manager_id} onChange={set("station_manager_id")}><option value="">-</option>{byRole("station_manager").map((s) => <option key={s.id} value={s.id}>{s.full_name}</option>)}</select></label>
+        <label>Account officer<select value={form.account_officer_id} onChange={set("account_officer_id")}><option value="">- (stays pending)</option>{byRole("account_officer").map((s) => <option key={s.id} value={s.id}>{s.full_name}</option>)}</select></label>
         <label className="wide">Remarks<textarea rows={3} value={form.remarks} onChange={set("remarks")} /></label>
         {error && <div className="alert wide">{error}</div>}
         <div className="wide"><button className="btn btn-primary">Register letter</button></div>

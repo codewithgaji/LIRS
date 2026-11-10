@@ -1,25 +1,24 @@
-# LIRS Correspondence Register — FastAPI + MySQL backend
+# LIRS Correspondence Register: FastAPI + PostgreSQL backend
 
-This folder holds the Python backend required by the CSA 392 project brief:
-**React frontend + FastAPI backend + MySQL database (SQLAlchemy + Alembic)**.
-
-It does not run inside the Lovable preview (that environment has no Python or
-MySQL). Clone the repository and run it locally as shown below.
+FastAPI backend with SQLAlchemy models, Alembic migrations and JWT authentication.
+Run every command below from inside the `backend/` folder.
 
 ## 1. Requirements
 
 - Python 3.11+
-- MySQL 8.0 running locally
+- PostgreSQL 14+ and pgAdmin
 
-## 2. Create the database
+## 2. Create the database in pgAdmin
 
-```bash
-mysql -u root -p < database/schema.sql
-mysql -u root -p lirs_register < database/seed_data.sql
-```
+1. Connect to your server, right click Databases, Create, Database.
+2. Database name: `lirs_register`, owner `postgres` (or your own role), save.
+3. Create the tables with ONE of these:
+   - `alembic upgrade head` (recommended), or
+   - open the Query Tool on `lirs_register` and run `database/schema.sql`
+4. Load sample data: Query Tool on `lirs_register`, run `database/seed_data.sql`.
 
-This creates six departments, ten staff accounts and fifty-two sample letters.
-**Demo password for every seeded account: `Lirs2026!`**
+The seed creates six departments, ten staff accounts and fifty-two letters.
+Demo password for every seeded account: `Lirs2026!`
 
 | Email | Role |
 | --- | --- |
@@ -27,48 +26,35 @@ This creates six departments, ten staff accounts and fifty-two sample letters.
 | manager@lirs.gov.ng | Station Manager |
 | officer@lirs.gov.ng | Account Officer |
 
-## 3. Install and run the API
+## 3. Configure and run
 
 ```bash
 python -m venv .venv && source .venv/bin/activate
-pip install -r backend/requirements.txt
-cp backend/.env.example backend/.env        # then edit DATABASE_URL and JWT_SECRET_KEY
-uvicorn backend.main:app --reload --port 8000
+pip install -r requirements.txt
+cp .env.example .env        # then edit DATABASE_URL and JWT_SECRET_KEY
+alembic upgrade head
+uvicorn main:app --reload --port 8000
 ```
 
-Interactive API documentation: <http://localhost:8000/docs>
+API docs: <http://localhost:8000/docs>
 
-### Alembic (schema migrations)
-
-`database/schema.sql` and Alembic describe the same schema — use either one.
-
-```bash
-alembic upgrade head          # apply migrations
-alembic revision --autogenerate -m "describe change"
-```
+New migration after a model change: `alembic revision --autogenerate -m "describe change"`
 
 ## 4. Folder layout
 
 ```
-backend/
-  main.py                  FastAPI application and router registration
-  core/     config.py      settings from environment variables
-            security.py    bcrypt hashing + JWT create/decode
-            deps.py        current-user dependency and role guards
-  db/       session.py     SQLAlchemy engine, session, declarative Base
-            base.py        metadata import for Alembic
-  models/                  SQLAlchemy ORM models + domain enums
-  schemas/                 Pydantic request/response models
-  routers/  auth.py        login, /me, change password
-            users.py       staff CRUD and role changes (admin only)
-            departments.py department list/create
-            correspondence.py  register CRUD, workflow, history
-            reports.py     dashboard, analytics and report figures
-            admin.py       schema browser + read-only SQL console
-  services/                business rules (reference numbers, workflow)
-alembic/                   migration environment and versions
-database/schema.sql        full MySQL DDL, triggers and reporting view
-database/seed_data.sql     realistic sample data
+main.py                FastAPI app and router registration
+core/    config.py     settings from .env
+         security.py   bcrypt hashing and JWT create/decode
+         deps.py       current user and role guards
+db/      session.py    engine, session, Base
+         base.py       model imports for alembic
+models/                SQLAlchemy models and enums
+schemas/               pydantic request/response models
+routers/               auth, users, departments, correspondence, reports, admin
+services/              business rules (reference numbers, workflow)
+alembic/               migrations
+database/              schema.sql and seed_data.sql
 ```
 
 ## 5. Roles and permissions
@@ -116,10 +102,3 @@ requires an `Authorization: Bearer <token>` header.
 | GET | `/reports/summary` `/by-status` `/by-department` `/by-officer` `/monthly` | Reporting figures |
 | GET | `/admin/schema` | Table and column listing |
 | POST | `/admin/query` | Read-only SELECT practice console |
-
-## 8. Connecting the React frontend
-
-The React app in `src/` currently talks to the Lovable Cloud backend so the live
-preview keeps working. To point it at this API instead, set a base URL of
-`http://localhost:8000/api/v1`, store the JWT returned by `/auth/login`, and send
-it as a bearer token on every request.

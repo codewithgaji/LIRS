@@ -20,7 +20,7 @@ export const STATUS_LABELS = {
   returned: "Returned",
 };
 
-// Mirrors STATUS_FLOW in backend/models/enums.py
+// copy of STATUS_FLOW in backend/models/enums.py, keep both the same
 export const STATUS_FLOW = {
   pending: ["assigned", "returned"],
   assigned: ["under_review", "returned"],
@@ -34,7 +34,7 @@ export const PRIORITIES = ["low", "normal", "high", "urgent"];
 export const DIRECTIONS = ["incoming", "outgoing"];
 export const CHART_COLORS = ["#1d4f91", "#c9972b", "#2f855a", "#c05621", "#6b46c1", "#718096"];
 
-export const formatDate = (d) => (d ? new Date(d).toLocaleDateString("en-GB") : "—");
+export const formatDate = (d) => (d ? new Date(d).toLocaleDateString("en-GB") : "-");
 
 export function downloadCsv(filename, rows) {
   if (!rows.length) return;

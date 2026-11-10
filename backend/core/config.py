@@ -1,4 +1,4 @@
-"""Application settings, loaded from environment variables / backend/.env."""
+# all my settings come from backend/.env, pydantic-settings reads it for me
 
 from functools import lru_cache
 
@@ -6,18 +6,22 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 class Settings(BaseSettings):
+    # ".env" is looked up from the folder I start the server in,
+    # so uvicorn and alembic both have to be run from inside backend/
     model_config = SettingsConfigDict(env_file=".env", extra="ignore")
 
     app_name: str = "LIRS Correspondence Register Management System"
     api_v1_prefix: str = "/api/v1"
 
-    database_url: str = "mysql+pymysql://root:password@localhost:3306/lirs_register"
+    # no defaults for these two on purpose, if .env is missing the app should fail loudly
+    database_url: str
+    jwt_secret_key: str
 
-    jwt_secret_key: str = "change-me-to-a-long-random-string"
     jwt_algorithm: str = "HS256"
     access_token_expire_minutes: int = 480
 
-    cors_origins: str = "http://localhost:5173,http://localhost:8080"
+    # comes in as one comma separated string, the property below splits it into a list
+    cors_origins: str = "http://localhost:5173"
 
     @property
     def cors_origin_list(self) -> list[str]:

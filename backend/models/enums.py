@@ -1,5 +1,3 @@
-"""Domain enumerations shared by the ORM models and the Pydantic schemas."""
-
 import enum
 
 
@@ -30,7 +28,8 @@ class CorrDirection(str, enum.Enum):
     outgoing = "outgoing"
 
 
-# Which statuses a letter may legally move to next (workflow guard).
+# the workflow map: the key is the current status, the list is where the letter may go next
+# frontend/src/utils/constants.js has a copy of this, so if I change one I change the other
 STATUS_FLOW: dict[CorrStatus, list[CorrStatus]] = {
     CorrStatus.pending: [CorrStatus.assigned, CorrStatus.returned],
     CorrStatus.assigned: [CorrStatus.under_review, CorrStatus.returned],

@@ -31,7 +31,7 @@ export default function Settings() {
             <dt>Name</dt><dd>{user.full_name}</dd>
             <dt>Email</dt><dd>{user.email}</dd>
             <dt>Role</dt><dd>{ROLE_LABELS[user.role]}</dd>
-            <dt>Station</dt><dd>{user.station || "—"}</dd>
+            <dt>Station</dt><dd>{user.station || "-"}</dd>
           </dl>
         </div>
         <form className="card" onSubmit={submit}>

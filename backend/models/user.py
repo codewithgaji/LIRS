@@ -7,15 +7,16 @@ from db.session import Base
 from models.enums import AppRole
 
 
+# staff accounts, the role column drives every permission check
 class User(Base):
-    """A staff member of the LIRS office. Roles drive every permission check."""
-
     __tablename__ = "users"
 
     id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
     full_name: Mapped[str] = mapped_column(String(160), nullable=False)
     email: Mapped[str] = mapped_column(String(160), nullable=False, unique=True, index=True)
     password_hash: Mapped[str] = mapped_column(String(255), nullable=False)
+    # native_enum=False keeps this a plain varchar in postgres,
+    # so adding a role later doesn't need an ALTER TYPE migration
     role: Mapped[AppRole] = mapped_column(
         Enum(AppRole, native_enum=False, length=32), nullable=False, default=AppRole.account_officer
     )

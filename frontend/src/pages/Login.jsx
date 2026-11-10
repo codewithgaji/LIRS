@@ -32,7 +32,7 @@ export default function Login() {
       <div className="login-hero">
         <div className="brand-mark large">LIRS</div>
         <h1>Correspondence Register Management System</h1>
-        <p>Lagos State Internal Revenue Service — digital register for incoming and outgoing letters.</p>
+        <p>Lagos State Internal Revenue Service. Digital register for incoming and outgoing letters.</p>
       </div>
       <form className="card login-card" onSubmit={submit}>
         <h2>Staff sign in</h2>

@@ -12,7 +12,7 @@ export default function CorrespondenceList() {
 
   const load = () => {
     setLoading(true);
-    // Drop empty filters so FastAPI receives only the ones in use.
+    // I drop the empty filters so the backend only gets the ones being used
     const params = Object.fromEntries(Object.entries(filters).filter(([, v]) => v !== ""));
     correspondenceApi.list({ ...params, limit: 500 }).then(setLetters).finally(() => setLoading(false));
   };
@@ -52,7 +52,7 @@ export default function CorrespondenceList() {
                   <td>{l.letter_title}</td>
                   <td>{l.company_name}</td>
                   <td>{formatDate(l.date_received)}</td>
-                  <td>{names[l.account_officer_id] || "—"}</td>
+                  <td>{names[l.account_officer_id] || "-"}</td>
                   <td><PriorityBadge priority={l.priority} /></td>
                   <td><StatusBadge status={l.status} /></td>
                 </tr>

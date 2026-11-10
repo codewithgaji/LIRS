@@ -1,7 +1,8 @@
 import { Navigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext.jsx";
 
-// Blocks a page unless the user is logged in (and, optionally, has one of `roles`).
+// blocks the page unless someone is logged in, and if roles is given, unless their role is in it
+// this only hides the page, the real permission check is on the backend
 export default function ProtectedRoute({ children, roles }) {
   const { user, loading } = useAuth();
   if (loading) return <div className="center-screen">Loading…</div>;
